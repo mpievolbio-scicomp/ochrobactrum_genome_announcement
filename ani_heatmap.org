@@ -1,36 +1,14 @@
 #+name: ANI heatmap
 #+author: Carsten Fortmann-Grote (@CFGrote)
 #+date: [2025-12-11 Thu] 
-#+property:header-args:R :results output :tangle fastani_heatmap.R :noweb yes :eval yes :session rbioinfo
+#+property: header-args:R :results output :tangle fastani_heatmap.R :noweb yes :eval yes :session rbioinfo
 
 
-* Libraries
-:PROPERTIES:
-:ID:       206c49a5-a191-4f73-9f27-bc35a6d1498b
-:END:
-#+name: libraries
-#+begin_src R :results quiet :session rbioinfo
-  library('ggcorrheatmap')
-  library('reshape2')
-  library('ggplot2')
-#+end_src
-
-#+RESULTS: libraries
-| ggplot2       |
-| reshape2      |
-| ggcorrheatmap |
-| stats         |
-| graphics      |
-| grDevices     |
-| utils         |
-| datasets      |
-| methods       |
-| base          |
-
-* Data massage
+* Data exploration
 :PROPERTIES:
 :ID:       35471fb5-7cb3-459d-a6a8-b999e734cacb
 :END:
+The data produced by running =fastANI= on our our data produced the following table.
 ** Original data
 :PROPERTIES:
 :ID:       aa04eaa7-59a6-40f6-bc89-16d3e4c6dc6c
@@ -170,10 +148,25 @@
 | P.saccharolyticum CCUG33852 | P.saccharolyticum DSM25260  |      99.9972 |
 | P.saccharolyticum DSM25260  | P.saccharolyticum CCUG33852 |      99.9992 |
 
-** Massaged data
-:PROPERTIES:
-:ID:       7a0ffe4e-39db-489d-8d46-522c4147f10c
-:END:
+ It contains 10 assembled genomes
+and 4 reference type strains. Before analyzing it further, some cleanup steps need to be taken:
+- remove strain NV9 because of inferior data quality
+- remove redundant type strains P.sac. CCUG33852 and O.pit. BU72 being close to 100% identical to their respective
+  counterparts P.sac. DSM25260 and O.pit. CCUG50899.
+- use isolate identifiers (MPB numbers) instead of sample titles in strain names
+|              |          |                                   |
+| Sample Title | Isolate  | Organism                          |
+|--------------+----------+-----------------------------------|
+| IV11         | MPB25535 | Ochrobactrum pituitosum           |
+| PH15         | MPB25415 | Ochrobactrum pituitosum           |
+| PH4          | MPB25440 | Ochrobactrum pituitosum           |
+| NH1          | MPB25478 | Ochrobactrum pituitosum           |
+| IV4          | MPB25528 | Pseudochrobactrum saccharolyticum |
+| NH11         | MPB25488 | Pseudochrobactrum saccharolyticum |
+| PH5          | MPB25441 | Pseudochrobactrum saccharolyticum |
+
+
+We run the following shell command:
 #+begin_src shell
   cat FastANI_Results.csv \
     | grep -v "CCUG33852" \
@@ -194,200 +187,56 @@
   cat FastANI_Results_clean.csv
 #+end_src
 
-#+RESULTS:
-| QUERY            | REFERENCE        | ANI_ESTIMATE |
-| P.sac. DSM25260  | MPB25415         |      77.5965 |
-| P.sac. DSM25260  | MPB25535         |      77.6331 |
-| P.sac. DSM25260  | O.pit. CCUG50899 |      77.6428 |
-| P.sac. DSM25260  | MPB25440         |        77.65 |
-| P.sac. DSM25260  | MPB25478         |      77.6545 |
-| MPB25440         | P.sac. DSM25260  |      77.6628 |
-| MPB25528         | MPB25535         |       77.666 |
-| MPB25535         | P.sac. DSM25260  |      77.6869 |
-| MPB25535         | MPB25488         |       77.687 |
-| MPB25478         | P.sac. DSM25260  |      77.6982 |
-| O.pit. CCUG50899 | P.sac. DSM25260  |      77.7393 |
-| MPB25415         | P.sac. DSM25260  |      77.7483 |
-| MPB25488         | O.pit. CCUG50899 |      77.7538 |
-| MPB25440         | MPB25528         |       77.812 |
-| MPB25440         | MPB25441         |      77.8335 |
-| MPB25528         | MPB25478         |      77.8428 |
-| MPB25488         | MPB25535         |      77.8508 |
-| MPB25528         | MPB25440         |      77.8561 |
-| MPB25440         | MPB25488         |      77.8956 |
-| MPB25478         | MPB25488         |      77.9164 |
-| MPB25528         | O.pit. CCUG50899 |      77.9249 |
-| MPB25528         | MPB25415         |      77.9371 |
-| MPB25488         | MPB25440         |      77.9646 |
-| MPB25488         | MPB25415         |      77.9761 |
-| MPB25535         | MPB25441         |      78.0064 |
-| O.pit. CCUG50899 | MPB25488         |      78.0117 |
-| MPB25441         | O.pit. CCUG50899 |      78.0307 |
-| MPB25535         | MPB25528         |      78.0328 |
-| MPB25415         | MPB25488         |      78.0359 |
-| MPB25441         | MPB25535         |      78.0393 |
-| MPB25488         | MPB25478         |       78.042 |
-| MPB25478         | MPB25528         |       78.048 |
-| MPB25441         | MPB25440         |      78.0613 |
-| O.pit. CCUG50899 | MPB25528         |       78.091 |
-| O.pit. CCUG50899 | MPB25441         |      78.1151 |
-| MPB25415         | MPB25528         |      78.1668 |
-| MPB25478         | MPB25441         |      78.3472 |
-| MPB25441         | MPB25478         |       78.509 |
-| MPB25415         | MPB25441         |      78.5989 |
-| MPB25441         | MPB25415         |       78.639 |
-| MPB25441         | MPB25488         |      96.1482 |
-| MPB25528         | MPB25488         |      96.1565 |
-| MPB25488         | MPB25441         |      96.1675 |
-| MPB25488         | MPB25528         |      96.1811 |
-| P.sac. DSM25260  | MPB25441         |      96.1847 |
-| MPB25441         | P.sac. DSM25260  |      96.2186 |
-| MPB25528         | P.sac. DSM25260  |      96.2722 |
-| P.sac. DSM25260  | MPB25528         |      96.2921 |
-| MPB25528         | MPB25441         |      96.3125 |
-| P.sac. DSM25260  | MPB25488         |      96.3453 |
-| MPB25441         | MPB25528         |       96.354 |
-| MPB25488         | P.sac. DSM25260  |      96.3628 |
-| O.pit. CCUG50899 | MPB25535         |      97.9973 |
-| MPB25535         | O.pit. CCUG50899 |      98.0089 |
-| MPB25535         | MPB25440         |      98.1054 |
-| MPB25440         | MPB25535         |       98.145 |
-| O.pit. CCUG50899 | MPB25415         |      98.2591 |
-| MPB25440         | MPB25415         |      98.3028 |
-| O.pit. CCUG50899 | MPB25440         |      98.3142 |
-| MPB25415         | O.pit. CCUG50899 |      98.3143 |
-| MPB25415         | MPB25440         |      98.3511 |
-| MPB25440         | O.pit. CCUG50899 |      98.3591 |
-| MPB25478         | O.pit. CCUG50899 |      98.4997 |
-| MPB25478         | MPB25440         |      98.5104 |
-| MPB25440         | MPB25478         |      98.5197 |
-| O.pit. CCUG50899 | MPB25478         |      98.5216 |
-| MPB25535         | MPB25478         |      98.6263 |
-| MPB25478         | MPB25535         |      98.6391 |
-| MPB25535         | MPB25415         |      98.7947 |
-| MPB25415         | MPB25535         |      98.8264 |
-| MPB25478         | MPB25415         |      98.9969 |
-| MPB25415         | MPB25478         |      99.0194 |
 
-* Load data
+* R script for heatmap plot
 :PROPERTIES:
-:ID:       6461c9a0-45f0-4e7d-8264-da42dd7e7d27
+:ID:       206c49a5-a191-4f73-9f27-bc35a6d1498b
 :END:
+The following libraries are needed to produce a formatted clustered heatmap from the filtered ANI data:
+#+name: libraries
+#+begin_src R :results values quiet :session rbioinfo
+  # Load libraries
+  library('ggcorrheatmap')
+  library('reshape2')
+  library('ggplot2')
+#+end_src
 
-#+begin_src R :session rbioinfo
+We load the data using =read.csv= treating strings as values, not as factors:
+#+begin_src R :session rbioinfo :results values quiet
+  # Read data
   data <- read.csv("FastANI_Results_clean.csv", stringsAsFactors = FALSE)
 #+end_src
 
-#+RESULTS:
-| P.sac. DSM25260  | MPB25415         | 77.5965 |
-| P.sac. DSM25260  | MPB25535         | 77.6331 |
-| P.sac. DSM25260  | O.pit. CCUG50899 | 77.6428 |
-| P.sac. DSM25260  | MPB25440         |   77.65 |
-| P.sac. DSM25260  | MPB25478         | 77.6545 |
-| MPB25440         | P.sac. DSM25260  | 77.6628 |
-| MPB25528         | MPB25535         |  77.666 |
-| MPB25535         | P.sac. DSM25260  | 77.6869 |
-| MPB25535         | MPB25488         |  77.687 |
-| MPB25478         | P.sac. DSM25260  | 77.6982 |
-| O.pit. CCUG50899 | P.sac. DSM25260  | 77.7393 |
-| MPB25415         | P.sac. DSM25260  | 77.7483 |
-| MPB25488         | O.pit. CCUG50899 | 77.7538 |
-| MPB25440         | MPB25528         |  77.812 |
-| MPB25440         | MPB25441         | 77.8335 |
-| MPB25528         | MPB25478         | 77.8428 |
-| MPB25488         | MPB25535         | 77.8508 |
-| MPB25528         | MPB25440         | 77.8561 |
-| MPB25440         | MPB25488         | 77.8956 |
-| MPB25478         | MPB25488         | 77.9164 |
-| MPB25528         | O.pit. CCUG50899 | 77.9249 |
-| MPB25528         | MPB25415         | 77.9371 |
-| MPB25488         | MPB25440         | 77.9646 |
-| MPB25488         | MPB25415         | 77.9761 |
-| MPB25535         | MPB25441         | 78.0064 |
-| O.pit. CCUG50899 | MPB25488         | 78.0117 |
-| MPB25441         | O.pit. CCUG50899 | 78.0307 |
-| MPB25535         | MPB25528         | 78.0328 |
-| MPB25415         | MPB25488         | 78.0359 |
-| MPB25441         | MPB25535         | 78.0393 |
-| MPB25488         | MPB25478         |  78.042 |
-| MPB25478         | MPB25528         |  78.048 |
-| MPB25441         | MPB25440         | 78.0613 |
-| O.pit. CCUG50899 | MPB25528         |  78.091 |
-| O.pit. CCUG50899 | MPB25441         | 78.1151 |
-| MPB25415         | MPB25528         | 78.1668 |
-| MPB25478         | MPB25441         | 78.3472 |
-| MPB25441         | MPB25478         |  78.509 |
-| MPB25415         | MPB25441         | 78.5989 |
-| MPB25441         | MPB25415         |  78.639 |
-| MPB25441         | MPB25488         | 96.1482 |
-| MPB25528         | MPB25488         | 96.1565 |
-| MPB25488         | MPB25441         | 96.1675 |
-| MPB25488         | MPB25528         | 96.1811 |
-| P.sac. DSM25260  | MPB25441         | 96.1847 |
-| MPB25441         | P.sac. DSM25260  | 96.2186 |
-| MPB25528         | P.sac. DSM25260  | 96.2722 |
-| P.sac. DSM25260  | MPB25528         | 96.2921 |
-| MPB25528         | MPB25441         | 96.3125 |
-| P.sac. DSM25260  | MPB25488         | 96.3453 |
-| MPB25441         | MPB25528         |  96.354 |
-| MPB25488         | P.sac. DSM25260  | 96.3628 |
-| O.pit. CCUG50899 | MPB25535         | 97.9973 |
-| MPB25535         | O.pit. CCUG50899 | 98.0089 |
-| MPB25535         | MPB25440         | 98.1054 |
-| MPB25440         | MPB25535         |  98.145 |
-| O.pit. CCUG50899 | MPB25415         | 98.2591 |
-| MPB25440         | MPB25415         | 98.3028 |
-| O.pit. CCUG50899 | MPB25440         | 98.3142 |
-| MPB25415         | O.pit. CCUG50899 | 98.3143 |
-| MPB25415         | MPB25440         | 98.3511 |
-| MPB25440         | O.pit. CCUG50899 | 98.3591 |
-| MPB25478         | O.pit. CCUG50899 | 98.4997 |
-| MPB25478         | MPB25440         | 98.5104 |
-| MPB25440         | MPB25478         | 98.5197 |
-| O.pit. CCUG50899 | MPB25478         | 98.5216 |
-| MPB25535         | MPB25478         | 98.6263 |
-| MPB25478         | MPB25535         | 98.6391 |
-| MPB25535         | MPB25415         | 98.7947 |
-| MPB25415         | MPB25535         | 98.8264 |
-| MPB25478         | MPB25415         | 98.9969 |
-| MPB25415         | MPB25478         | 99.0194 |
 
-# Step 2: Reshape the data into a wide format using dcast
-# We need to make the QUERY values the row names and the REFERENCE values the column names
+Next, we reshape the data into a wide format using =dcast=.
+We need to make the QUERY values the row names and the REFERENCE values the column names
+#+begin_src R :session rbioinfo :results values quiet
+  # Reshape into square matrix
+  data_matrix <- dcast(data, QUERY ~ REFERENCE, value.var = "ANI_ESTIMATE")
+#+end_src
+
+Finally, we remove the QUERY column and insert it as rownames
 #+begin_src R :session rbioinfo
-data_matrix <- dcast(data, QUERY ~ REFERENCE, value.var = "ANI_ESTIMATE")
+  # Remove the QUERY column which is now row names 
+  heatmap_data <- as.matrix(data_matrix[, -1])  
+  
+  # Set QUERY as row names
+  rownames(heatmap_data) <- data_matrix$QUERY  
 #+end_src
 
 #+RESULTS:
-| MPB25415         |         | 98.3511 | 78.5989 | 99.0194 | 78.0359 | 78.1668 | 98.8264 | 98.3143 | 77.7483 |
-| MPB25440         | 98.3028 |         | 77.8335 | 98.5197 | 77.8956 |  77.812 |  98.145 | 98.3591 | 77.6628 |
-| MPB25441         |  78.639 | 78.0613 |         |  78.509 | 96.1482 |  96.354 | 78.0393 | 78.0307 | 96.2186 |
-| MPB25478         | 98.9969 | 98.5104 | 78.3472 |         | 77.9164 |  78.048 | 98.6391 | 98.4997 | 77.6982 |
-| MPB25488         | 77.9761 | 77.9646 | 96.1675 |  78.042 |         | 96.1811 | 77.8508 | 77.7538 | 96.3628 |
-| MPB25528         | 77.9371 | 77.8561 | 96.3125 | 77.8428 | 96.1565 |         |  77.666 | 77.9249 | 96.2722 |
-| MPB25535         | 98.7947 | 98.1054 | 78.0064 | 98.6263 |  77.687 | 78.0328 |         | 98.0089 | 77.6869 |
-| O.pit. CCUG50899 | 98.2591 | 98.3142 | 78.1151 | 98.5216 | 78.0117 |  78.091 | 97.9973 |         | 77.7393 |
-| P.sac. DSM25260  | 77.5965 |   77.65 | 96.1847 | 77.6545 | 96.3453 | 96.2921 | 77.6331 | 77.6428 |         |
-#+begin_src R :session rbioinfo
-heatmap_data <- as.matrix(data_matrix[, -1])  # Remove the QUERY column which is now row names
-## heatmap_data[is.na(heatmap_data)] <- 100.0
-heatmap_data <- heatmap_data * 0.01
-rownames(heatmap_data) <- data_matrix$QUERY  # Set QUERY as row names
+
+The table reports ANI values as percent identity, we'll recast it to a ratio by dividing by 100
+
+#+begin_src R :session rbioinfo :results values quiet
+  # Scale to 0 < ANI < 1.
+  heatmap_data <- heatmap_data * 0.01
 #+end_src
 
-#+RESULTS:
-| MPB25415         |
-| MPB25440         |
-| MPB25441         |
-| MPB25478         |
-| MPB25488         |
-| MPB25528         |
-| MPB25535         |
-| O.pit. CCUG50899 |
-| P.sac. DSM25260  |
-
-
-
+Finally, we plot the heatmap using =ggplot2::gghm=. We cluster rows and columns but do not render the dendogram. Each
+cell is labeled by the corresponding ANI value. We plot only the upper left triangle of the symmetric matrix and
+remove the diagonal as it does not add any information. Remaining options and the added =theme= layer are for stylistic
+elements. The plot is saved in high resolution to pdf and png files.
 #+begin_src R :session rbioinfo :results output file link :file ani_heatmap.png
   # Plot heatmap
   gghm(heatmap_data,
@@ -404,8 +253,6 @@ rownames(heatmap_data) <- data_matrix$QUERY  # Set QUERY as row names
        dend_height=0.0,
        legend_order=NA,
        cell_label_size=6,
-       ## show_names_diag=TRUE,
-       ## names_diag_params=list(angle=-45)
        ) + theme(axis.text.x = element_text(size=18), axis.text.y = element_text(size=18))
   ggsave('ani_heatmap.pdf', dpi=600)
   ggsave('ani_heatmap.png', dpi=150)
