@@ -25,8 +25,9 @@ The scripts /filter_ani_data.sh/ and /fastani_heatmap.R/ were used to generate F
 :PROPERTIES:
 :ID:       35471fb5-7cb3-459d-a6a8-b999e734cacb
 :END:
-The data produced by running =fastANI= on our our assembled genomes contains 12*11=132 pairwise ANI similarities, corresponding
-to our 10 assembled genomes and 4 reference type strains. Before analyzing it further, some cleanup steps need to be taken:
+The data produced by running =fastANI= on our sequence data contains 12*11=132 pairwise ANI similarities, corresponding
+to our 8 assembled genomes and 4 reference type strains.
+Some cleanup steps need to be taken:
 - remove strain NV9 because of inferior data quality
 - remove redundant type strains P.sac. CCUG33852 and O.pit. BU72 being close to 100% identical to their respective
   counterparts P.sac. DSM25260 and O.pit. CCUG50899.
