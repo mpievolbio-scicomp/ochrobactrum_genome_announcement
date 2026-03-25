@@ -1,5 +1,6 @@
 #+author: Carsten Fortmann-Grote (@CFGrote)
 #+date: [2025-12-11 Thu] 
+modifiedDate: [2026-03-25 Wed]
 #+property: header-args:R :results output :tangle fastani_heatmap.R :noweb yes :eval yes :session rbioinfo
 
 * Introduction
@@ -37,7 +38,7 @@ Some cleanup steps need to be taken:
 | Sample Title | Isolate  | Organism                          |
 |--------------+----------+-----------------------------------|
 | IV11         | MPB25535 | Ochrobactrum pituitosum           |
-| PH15         | MPB25415 | Ochrobactrum pituitosum           |
+| PH15         | MPB25451 | Ochrobactrum pituitosum           |
 | PH4          | MPB25440 | Ochrobactrum pituitosum           |
 | NH1          | MPB25478 | Ochrobactrum pituitosum           |
 | IV4          | MPB25528 | Pseudochrobactrum saccharolyticum |
@@ -53,7 +54,7 @@ We run the following shell command:
     | grep -v "BU72" \
     | grep -v "NV9" \
     | sed 's/IV11/MPB25535/g' \
-    | sed 's/PH15/MPB25415/g' \
+    | sed 's/PH15/MPB25451/g' \
     | sed 's/PH4/MPB25440/g' \
     | sed 's/NH11/MPB25488/g' \
     | sed 's/NH1/MPB25478/g' \
@@ -131,14 +132,15 @@ elements. The plot is saved in high resolution to pdf and png files.
        show_dend_cols=FALSE,
        cell_label_digits=3,
        legend_order=NA,
-       cell_label_size=6,
-       ) + theme(axis.text.x = element_text(size=18), axis.text.y = element_text(size=18))
+       cell_label_size=4,
+       ) + theme(axis.text.x = element_text(size=12), axis.text.y = element_text(size=12))
   ggsave('ani_heatmap.pdf', dpi=600)
   ggsave('ani_heatmap.png', dpi=150)
 #+end_src
 
 #+RESULTS:
 [[file:ani_heatmap.png]]
+[[file:ani_heatmap.pdf]]
 
 
 To reproduce the Fig. 1 in the Announcement paper, run

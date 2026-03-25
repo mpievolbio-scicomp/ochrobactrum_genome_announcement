@@ -32,7 +32,7 @@ gghm(heatmap_data,
      cell_label_digits=3,
      dend_height=0.0,
      legend_order=NA,
-     cell_label_size=6,
-     ) + theme(axis.text.x = element_text(size=18), axis.text.y = element_text(size=18))
+     cell_label_size=4,
+     ) + theme(axis.text.x = element_text(size=12), axis.text.y = element_text(size=12))
 ggsave('ani_heatmap.pdf', dpi=600)
 ggsave('ani_heatmap.png', dpi=150)

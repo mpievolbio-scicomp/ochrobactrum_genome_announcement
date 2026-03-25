@@ -4,7 +4,7 @@ cat FastANI_Results.csv \
   | grep -v "BU72" \
   | grep -v "NV9" \
   | sed 's/IV11/MPB25535/g' \
-  | sed 's/PH15/MPB25415/g' \
+  | sed 's/PH15/MPB25451/g' \
   | sed 's/PH4/MPB25440/g' \
   | sed 's/NH11/MPB25488/g' \
   | sed 's/NH1/MPB25478/g' \
